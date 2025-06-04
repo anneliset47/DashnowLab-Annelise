@@ -1,0 +1,19 @@
+{
+    "data": [
+        {
+            "alignmentgroup": "True",
+            "bingroup": "x",
+            "hovertemplate": "Repeat Count=%{x}<br>Allele Count=%{y}<extra></extra>",
+            "legendgroup": "",
+            "marker": {
+                "color": "#636efa",
+                "pattern": {
+                    "shape": ""
+                }
+            },
+            "name": "",
+            "nbinsx": 3,
+            "offsetgroup": "",
+            "orientation": "v",
+            "showlegend": false,
+            "x": 
