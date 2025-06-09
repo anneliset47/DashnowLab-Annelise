@@ -9,7 +9,9 @@ import pandas as pd
 # VCF_PATH = "/Users/annelisethorn/Documents/Anschutz/Datasets/68_samples/100HPRC.trgt-v0.8.0.STRchive.sorted-68Samples.vcf.gz"
 # VCF_PATH = "/Users/annelisethorn/Documents/Anschutz/Datasets/88_samples/1000g-ONT-88Samples.vcf.gz"
 VCF_PATH = "/Users/annelisethorn/Documents/Anschutz/Datasets/503_samples/1000g-ONT-STRchive-503Samples.vcf.gz"
+
 JSON_PATH = "/Users/annelisethorn/Documents/Anschutz/Datasets/STRchive-loci.json"
+
 # OUTPUT_DIR = "/Users/annelisethorn/Documents/Anschutz/Plots/Tandem_Repeats_Plots/68Samples_tr_plots"
 # OUTPUT_DIR = "/Users/annelisethorn/Documents/Anschutz/Plots/Tandem_Repeats_Plots/88Samples_tr_plots"
 OUTPUT_DIR = "/Users/annelisethorn/Documents/Anschutz/Plots/Tandem_Repeats_Plots/503Samples_tr_plots"
@@ -80,6 +82,7 @@ for record in vcf_in.fetch():
         None
     )
     if not matched_locus:
+        print(f"Skipped: {chrom}:{pos} — no matching locus in JSON")
         continue
 
     # Calculate motif length as # of bases
@@ -98,13 +101,13 @@ for record in vcf_in.fetch():
     for sample in record.samples.values():
         al_lengths = sample.get("AL")
         if al_lengths:
-            allele_lengths.extend([int(length) for length in al_lengths if length is not None])
+            allele_lengths.extend([(length) for length in al_lengths if length is not None])
         
     repeat_counts = []
     for sample in record.samples.values():
         al_lengths = sample.get("AL")
         if al_lengths:
-            repeat_counts.extend([int(length) // motif_length for length in al_lengths if length is not None])
+            repeat_counts.extend([(length) // motif_length for length in al_lengths if length is not None])
 
     if not repeat_counts:
         continue
@@ -139,12 +142,12 @@ for record in vcf_in.fetch():
         "Repeat counts (unique)": len(set(repeat_counts))
     }
 
-    # Uncomment the following lines to save debug info to a CSV file:
-    OUTPUT_DIR2 = "/Users/annelisethorn/Documents/Anschutz/Code/Plotting"
-    debug_csv_path = os.path.join(OUTPUT_DIR2, "debug_info.csv")
-    write_header = not os.path.exists(debug_csv_path)
-    pd.DataFrame([debug_info]).to_csv(debug_csv_path, mode='a', header=write_header, index=False)
-    # --- END DEBUG INFO ---
+    # # Uncomment the following lines to save debug info to a CSV file:
+    # OUTPUT_DIR2 = "/Users/annelisethorn/Documents/Anschutz/Code/Plotting/CSVs"
+    # debug_csv_path = os.path.join(OUTPUT_DIR2, "debug_info.csv")
+    # write_header = not os.path.exists(debug_csv_path)
+    # pd.DataFrame([debug_info]).to_csv(debug_csv_path, mode='a', header=write_header, index=False)
+    # # --- END DEBUG INFO ---
 
     df = pd.DataFrame({"Repeat Count": repeat_counts})
     min_bin, max_bin = min(repeat_counts), max(repeat_counts)
@@ -222,6 +225,7 @@ for record in vcf_in.fetch():
             x_span=x_span
         )
 
+    # Save plots as HTML
     plot_filename = f"{gene}_{chrom}_{pos}_allele_dist.html"
     fig.write_html(os.path.join(OUTPUT_DIR, plot_filename))
 print(f"Saved plots in {OUTPUT_DIR}")
